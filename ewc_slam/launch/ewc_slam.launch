@@ -1,0 +1,18 @@
+<launch>
+  <!-- Arguments -->
+ <node pkg="ewc_slam" type="ewc_kinect_frame"
+          name="ewc_Kinect_frame" />
+
+  <arg name="slam_methods" default="gmapping" doc="slam type [gmapping,hector]"/>
+  <arg name="open_rviz" default="true"/>
+
+  <!-- SLAM: Gmapping, Hector -->
+  <include file="$(find ewc_slam)/launch/ewc_$(arg slam_methods).launch">
+  </include>
+
+  <!-- rviz -->
+  <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"/>
+  </group>
+
+</launch>
