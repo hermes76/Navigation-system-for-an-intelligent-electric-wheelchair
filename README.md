@@ -5,6 +5,7 @@ The following work works with:
 - kinect 360
 - ROS (Robot Operating System)
 - ubuntu 18.04 LTS
+<<<<<<< HEAD
 
 tutorial turtlebot3:
 https://youtu.be/3hswO5bAIK4
@@ -50,3 +51,5 @@ steps:
 - export TURTLEBOT3_MODEL=burger
 - roslaunch ewc_2dnav ewc_navigation.launch
 
+=======
+>>>>>>> 2afe969555a469516558beadb8eccd10d8bbac7b
