@@ -50,6 +50,3 @@ steps:
 
 - export TURTLEBOT3_MODEL=burger
 - roslaunch ewc_2dnav ewc_navigation.launch
-
-=======
->>>>>>> 2afe969555a469516558beadb8eccd10d8bbac7b
