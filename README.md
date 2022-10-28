@@ -5,7 +5,6 @@ The following work works with:
 - kinect 360
 - ROS (Robot Operating System)
 - ubuntu 18.04 LTS
-<<<<<<< HEAD
 
 tutorial turtlebot3:
 https://youtu.be/3hswO5bAIK4
