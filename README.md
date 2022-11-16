@@ -48,4 +48,3 @@ steps:
 - rosrun ewc_slam ewc_kinect_frame
 
 - roslaunch ewc_2dnav move_base_launch_1.launch
-
