@@ -5,13 +5,10 @@ The following work works with:
 - kinect 360
 - ROS (Robot Operating System)
 - ubuntu 18.04 LTS
-<<<<<<< HEAD
-
-tutorial turtlebot3:
-https://youtu.be/3hswO5bAIK4
 
 configuration roomba
 https://github.com/AutonomyLab/create_robot
+
 
 
 MAPPING
@@ -27,8 +24,7 @@ steps:
 
 - rosrun ewc_slam ewc_kinect_frame
 
-- export TURTLEBOT3_MODEL=burger
-- rosrun turtlebot3_teleop turtlebot3_teleop_key
+- rosrun ewc_teleop ewc_teleop_key
 
 - roslaunch ewc_slam ewc_slam.launch slam_methods:=gmapping
 
@@ -36,6 +32,9 @@ save map:
 - rosrun map_server map_saver -f <"name">
 
 NAVIGATION
+
+sudo apt-get install ros-melodic-husky-navigation ros-melodic-husky-gazebo ros-melodic-husky-viz
+
 steps:
 
 - sudo usermod -a -G dialout $USER
@@ -48,8 +47,5 @@ steps:
 
 - rosrun ewc_slam ewc_kinect_frame
 
-- export TURTLEBOT3_MODEL=burger
-- roslaunch ewc_2dnav ewc_navigation.launch
+- roslaunch ewc_2dnav move_base_launch_1.launch
 
-=======
->>>>>>> 2afe969555a469516558beadb8eccd10d8bbac7b
