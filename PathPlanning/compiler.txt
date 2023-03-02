@@ -1,0 +1,1 @@
+g++ -o main main.cpp point.cpp rrt.cpp -lsfml-graphics -lsfml-window -lsfml-system point.cpp rrt.cpp -lsfml-graphics -lsfml-
