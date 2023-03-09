@@ -48,3 +48,13 @@ steps:
 - rosrun ewc_slam ewc_kinect_frame
 
 - roslaunch ewc_2dnav move_base_launch_1.launch
+
+
+
+
+PATH PLANNING
+to use path planning make sure you have SFML, to compile the path planning run:
+g++ -o main main
+.cpp point.cpp pathPlanning.cpp pgm.cpp -lsfml-graphics quadTree.cpp -lsfml-window -lsfml-system
+
+

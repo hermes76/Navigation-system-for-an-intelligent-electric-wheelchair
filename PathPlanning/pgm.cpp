@@ -19,26 +19,31 @@ void Pgm::readImage(string name)
     double ocuped_fresh=0.65;
 
 
-    for(int x=0; x<6; x++)
-        file>>trash;
+    file>>trash;
+    file.ignore();
 
+    getline(file,trash);
     file>>this->width>>this->height;
     file>>trash;
     
     unsigned char byte;
     int value;
 
-    this->data.resize(this->height);
+    this->data.resize(this->height,vector<bool>(this->width));
     
-    for(int x=0; x<this->height; x++)
+    for(int y=0; y<this->height; y++)
     {
-        for(int y=0; y<this->width; y++)
+        for(int x=0; x<this->width; x++)
         {
             file>>byte;
             value=byte;
-            if((255-value)/255.0>=ocuped_fresh)
-                this->data[x].push_back(true);
-            else this->data[x].push_back(false);
+          //  if((255-value)/255.0>=ocuped_fresh)
+            //    this->data[y].push_back(true);
+            //else this->data[y].push_back(false);
+             if((255-value)/255.0>=ocuped_fresh)
+                this->data[y][x]=true;
+            else this->data[y][x]=false;
+
         }
     }
     file.close();

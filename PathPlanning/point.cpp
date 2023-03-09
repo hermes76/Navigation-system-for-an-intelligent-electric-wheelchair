@@ -112,21 +112,23 @@ Point generateRandomPoint(int x1,int y1, int x2, int y2)
 }
 Point angledPoint(Point origin,Point p,double angle)
 {
-    double m=slope(origin,p);
-  
-    double alfa=atan(m);
-    double d=euclidianDistanceSqrt(origin,p);
-    if(p.getX()<origin.getX())       
-        alfa=alfa+3.1416;
-    p.setX(d*cos(alfa+angle));
-    p.setY(d*sin(alfa+angle));
+    /*
+        rotA| cosA  -senA||x|= xcosA-ysenA,xsenA+YcosA
+            | senA   cosA||y|
+    */
+   
+    p=p-origin;
+    double x=p.getX();
+    double y=p.getY();
+    p.setX(x*cos(angle)-y*sin(angle));
+    p.setY(x*sin(angle)+y*cos(angle));
     p=p+origin;
     return p;
 }
-bool comparePointInLimits(Point compare,int width, int height,int x1,int y1, int x2, int y2)
+bool comparePointInLimits(Point compare,int x1,int y1, int x2, int y2)
 {  
-    if(compare.getX()>=max(x1,0) && compare.getX()<min(x2,width)
-     && compare.getY()>=max(0,y1) && compare.getY()<min(height,y2))
+    if(compare.getX()>=x1 && compare.getX()<x2
+     && compare.getY()>=y1 && compare.getY()<y2)
         return true;
     return false;   
 }

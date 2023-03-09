@@ -156,9 +156,10 @@ vector<Node> QuadTree::circleQueryCall(pnt::Point center, double radius)
     Area range(center.getX()-radius, center.getY()-radius, center.getX()+radius, center.getY()+radius);
     vector<Node> query= rangeQuery(range);
     vector<Node> circle;
+    radius*=radius;
     for(int i=0; i<query.size(); i++)
     {
-        if(pnt::euclidianDistance(center,query[i].point)<=radius*radius)
+        if(pnt::euclidianDistance(center,query[i].point)<=radius)
             circle.push_back(query[i]);
 
     }

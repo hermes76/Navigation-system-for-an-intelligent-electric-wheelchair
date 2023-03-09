@@ -41,7 +41,7 @@ namespace pnt
     double slope(Point a,Point b);
     Point generateRandomPoint(int x1,int y1, int x2, int y2);
     Point angledPoint(pnt::Point origin,pnt::Point p,double angle);
-    bool comparePointInLimits(Point compare,int width, int height,int x1,int y1, int x2, int y2);
+    bool comparePointInLimits(Point compare,int x1,int y1, int x2, int y2);
     bool closest(Point origin,Point a, Point b);
     bool closest(Point origin,Point a, Point b, double &distance);
 

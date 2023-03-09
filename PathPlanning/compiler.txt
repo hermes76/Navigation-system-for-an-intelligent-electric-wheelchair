@@ -1,1 +1,2 @@
-g++ -o main main.cpp point.cpp rrt.cpp -lsfml-graphics -lsfml-window -lsfml-system point.cpp rrt.cpp -lsfml-graphics -lsfml-
+g++ -o main main
+.cpp point.cpp pathPlanning.cpp pgm.cpp -lsfml-graphics quadTree.cpp -lsfml-window -lsfml-system

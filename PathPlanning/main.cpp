@@ -27,25 +27,26 @@ void drawObstacles( sf::RenderWindow &window, pgm::Pgm &image)
 int main()
 {
     srand(time(0));
-    pgm::Pgm image("my_map.pgm");
-
+    pgm::Pgm image("maps/my_map.pgm");
     image.cutTrash();
-    image.inflateGrid(3,3);
+    //image.inflateGrid(3,3);
         cout<<image.getWidth()<<' '<<image.getHeight()<<endl;
 
-    pnt::Point start(40,180);
+    pnt::Point start(40,90);
     pnt::Point end(290, 180);
-    //pnt::Point start(30,20);
-    //pnt::Point end(100, 70);
+    //pnt::Point start(40,180);
+   //pnt::Point end(290, 180);
+   // pnt::Point start(30,20);
+   // pnt::Point end(100, 70);
 
     sf::RenderWindow window(sf::VideoMode(image.getWidth(), image.getHeight()),"Navigation");
 
     sf::CircleShape startPoint(1.f);
     sf::CircleShape endPoint(1.f);
 
-    path::PathTree tree=path::RRT(image.data,start,end,10,0,0,image.getWidth(), image.getHeight());
+    path::PathTree tree=path::RRT(image.data,start,end,5,0,0,image.getWidth(), image.getHeight());
     path::PathPlanning route=tree.getPathPlanning();
-    path::PathTree optimized= path::informedRRTStar(image.data,route,10,0,0,image.getWidth(), image.getHeight());
+
     endPoint.setFillColor(sf::Color::Red);
     startPoint.setFillColor(sf::Color::Blue);
     startPoint.setPosition(start.getX(),start.getY());
@@ -60,13 +61,15 @@ int main()
                 window.close();
         }
         
-        
+
         window.clear();
         drawObstacles(window,image);
-         
-        //tree.drawTree(window);
+
+        path::PathTree optimized= path::informedRRTStar(image.data,route,10,0,0,image.getWidth(), image.getHeight());
+        tree.drawTree(window);
         //route.drawPath(window);
-        optimized.drawTree(window);
+        //optimized.drawTree(window);
+        optimized.getPathPlanning().drawPath(window);
         optimized.drawArea(window);
 
         window.draw(startPoint);

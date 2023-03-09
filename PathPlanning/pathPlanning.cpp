@@ -167,26 +167,34 @@ bool obstacleFree(vector<vector<bool>> &grid,pnt::Point pointBegin, pnt::Point p
 {
     //dda algorithm
 
-    int dx=pointEnd.getX()-pointBegin.getX();
-    int dy=pointEnd.getY()-pointBegin.getY();
+    if(!pnt::comparePointInLimits(pointBegin,0,0,grid[0].size(), grid.size()),
+    !pnt::comparePointInLimits(pointEnd,0,0,grid[0].size(), grid.size()) )
+        return false;
 
-    int steps = abs(dx)>abs(dy)?abs(dx):abs(dy);
+    double dx=pointEnd.getX()-pointBegin.getX();
+    double dy=pointEnd.getY()-pointBegin.getY();
+
+    double steps = abs(dx)>abs(dy)?abs(dx):abs(dy);
 
     if(steps==0)
         return !grid[pointBegin.getY()][pointBegin.getX()];
     double Xinc = dx/(double)steps;
     double Yinc = dy/(double)steps;
-
     double x=pointBegin.getX();
     double y=pointBegin.getY();
-    for(int i=0; i<=steps; i++)
+    //cout<<"A"<<endl;
+    for(int i=0; i<steps; i++)
     {
         x+=Xinc;
         y+=Yinc;
-        
+      //  cout<<x<<" "<<y<<endl;
         if(grid[y][x])
             return false;
     }
+    x+=Xinc;
+    y+=Yinc;
+    if(x<grid[0].size() && y<grid.size())
+        return !grid[y][x];    
     return true;
 }
 pnt::Point steer(pnt::Point near,pnt::Point pRand,int distance)
@@ -236,15 +244,17 @@ PathTree RRT(vector<vector<bool>> &grid, pnt::Point start,pnt::Point end,int dis
 
     while(!pathFind)
     {   
-        pRand=pnt:: generateRandomPoint(x1,y1,x2-1,y2-1);
+        pRand=pnt:: generateRandomPoint(x1,y1,x2,y2);
         nearVertex= tree.closestPoint(pRand);
         pNew= steer(nearVertex.point,pRand,distance);
+
         if(!obstacleFree(grid,nearVertex.point,pNew))
             continue;
         cost.push_back(cost[nearVertex.id]+ pnt::euclidianDistanceSqrt(nearVertex.point,pNew));
         parent.push_back(nearVertex.id);
         vertex.push_back(pNew);
         tree.insert(pNew,vertex.size()-1);
+        
         if(pnt::euclidianDistanceSqrt(pNew,end)<=distance && obstacleFree(grid,pNew,end))
             pathFind=true;
 
@@ -255,6 +265,8 @@ PathTree RRT(vector<vector<bool>> &grid, pnt::Point start,pnt::Point end,int dis
     cost.push_back(cost[lastInserted]+ pnt:: euclidianDistanceSqrt(pNew,end));
     parent.push_back(lastInserted);
     vertex.push_back(end);
+    
+    lastInserted++;
 
     PathTree pathTree;
 
