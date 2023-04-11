@@ -1,0 +1,5 @@
+<library path="lib/liblocal_path_planner">
+  <class name="local_path_planner/LocalPathPlanner" type="local::LocalPathPlanner" base_class_type="nav_core::BaseLocalPlanner">
+    <description>This is local path planner Plugin by hermes.</description>
+  </class>
+</library>

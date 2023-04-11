@@ -1,0 +1,5 @@
+<library path="lib/libglobal_path_planner">
+  <class name="global_path_planner/GlobalPathPlanner" type="global::GlobalPathPlanner" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>This is global path planner Plugin by hermes.</description>
+  </class>
+</library>
