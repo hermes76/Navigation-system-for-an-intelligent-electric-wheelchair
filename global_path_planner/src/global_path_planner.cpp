@@ -30,8 +30,10 @@ namespace global {
        this->resolution=costmap_->getResolution();
 
        ros::NodeHandle private_nh("~/" + name);
+
        private_nh.param("step_size", step_size_, costmap_->getResolution());
        private_nh.param("min_dist_from_robot", min_dist_from_robot_, 0.10);
+
        this->world_model_ = new base_local_planner::CostmapModel(*costmap_); 
 
        ros::NodeHandle nh("~/" + name);
@@ -58,9 +60,6 @@ namespace global {
   this->end=new_goal;
 
   plan.clear();
-  //ROS_INFO("RRT* Global Planner");
-  //ROS_INFO("Current Position: ( %.2lf, %.2lf)", start.pose.position.x, start.pose.position.y);
-  //ROS_INFO("GOAL Position: ( %.2lf, %.2lf)", goal.pose.position.x, goal.pose.position.y);
   
   path::PathTree routes;
   path::PathPlanning path;
@@ -74,10 +73,6 @@ namespace global {
   worldToMap(new_goal.getX(), new_goal.getY(),x,y);
   new_goal.setX(x);
   new_goal.setY(y);
-
-  //ROS_INFO("new Current Position: ( %.2lf, %.2lf)", new_start.getX(), new_start.getY());
-  //ROS_INFO("new Current Position: ( %.2lf, %.2lf)", new_goal.getX(), new_goal.getY());
-
 
   if(!path::RRT(routes,*this->costmap_,new_start,new_goal,5,5000,0,0,costmap_->getSizeInCellsX(),costmap_->getSizeInCellsY()))
     return false;
@@ -149,10 +144,8 @@ void GlobalPathPlanner::publishPlan(const std::vector<geometry_msgs::PoseStamped
 
   // Extract the plan in world co-ordinates, we assume the plan is all in the same frame
   for (unsigned int i = 0; i < plan.size(); i++)
-  {
     rviz_path.poses[i] = plan[i];
-  }
-
+    
   plan_pub_.publish(rviz_path);
 }
 

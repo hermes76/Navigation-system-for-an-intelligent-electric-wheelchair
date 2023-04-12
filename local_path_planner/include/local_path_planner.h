@@ -43,18 +43,28 @@ public:
     bool isGoalReached();
 
     private:
-        std::vector<geometry_msgs::PoseStamped> global_plan;
+        
+        double PI;
         bool initialized_;
+
         int index_subgoal;
         int goal_reached;
+        int threshold_angle;
+              
         float angular_velocity;
         float linear_velocity;
+        float max_linear_velocity;
+        float max_angular_velocity;
 
+        vector<geometry_msgs::PoseStamped> global_plan;
 
         costmap_2d::Costmap2DROS* costmap_ros_;
+
         tf2_ros::Buffer* tf_;
-        nav_msgs::Odometry::ConstPtr m_odometry;
+
         boost::mutex m_odometry_mutex;
+        nav_msgs::Odometry::ConstPtr m_odometry;
+
         ros::Subscriber m_odom_sub;
 };
 };

@@ -146,7 +146,7 @@ bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point 
         y+=Yinc;
         cost=grid.getCost(x,y);
         cost_value=cost;
-        if(cost_value>150)
+        if(cost_value>150 || cost_value==-1)
                 return false;
     }
 
@@ -302,7 +302,9 @@ PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int di
 
     pnt::Point pRand;
     quad::Node nearVertex;
-    for(int i=0; i<1000; i++)
+
+    int density=(x2-x1) *(y2-y1)*2;
+    for(int i=0; i<density; i++)
     {
         pRand = pnt::generateRandomPoint(x1,y1,x2,y2);
         pRand = pnt::angledPoint(start,pRand, angle);
