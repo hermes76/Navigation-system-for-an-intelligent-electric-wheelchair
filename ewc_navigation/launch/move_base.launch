@@ -1,0 +1,22 @@
+<launch>
+  <!-- Arguments -->
+  <arg name="cmd_vel_topic" default="cmd_vel" />
+  <arg name="odom_topic" default="odom" />
+
+  <!-- move_base -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+   <param name="base_local_planner" value="local_path_planner/LocalPathPlanner" />
+   <param name="base_global_planner" value="global_path_planner/GlobalPathPlanner" />
+
+    <rosparam file="$(find ewc_navigation)/params/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find ewc_navigation)/params/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find ewc_navigation)/params/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find ewc_navigation)/params/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find ewc_navigation)/params/move_base_params.yaml" command="load" />
+    <rosparam file="$(find ewc_navigation)/params/global_path_planner_params.yaml" command="load" />
+    <rosparam file="$(find ewc_navigation)/params/local_path_planner_params.yaml" command="load" />
+
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+  </node>
+</launch>

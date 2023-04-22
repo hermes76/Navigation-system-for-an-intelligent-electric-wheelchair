@@ -1,50 +1,29 @@
 <launch>
     <arg name="open_rviz" default="true"/>
     
-    <!--<include file="$(find freenect_launch)/launch/freenect.launch"/>
+    <include file="$(find freenect_launch)/launch/freenect.launch"/>
    
-    <node pkg="depthimage_to_laserscan" name="depthimage_to_laserscan" type="depthimage_to_laserscan">
+    <node pkg="depthimage_to_laserscan" name="depthimage_to_laserscan" type="depthimage_to_laserscan" output="screen">
         <remap from="image" to="/camera/depth/image_raw"/>
     </node>
 
     <node pkg="ewc_slam" name="ewc_kinect_frame" type="ewc_kinect_frame"/> -->
   
     <!-- Run the map server --> 
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find ewc_navigation)/maps/map1.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find ewc_navigation)/maps/robo.yaml"/>
 
-   <!--- Run AMCL -->
-    <!--<include file="$(find amcl)/examples/amcl_diff.launch" />-->
-     <arg name="scan_topic" default="$(eval optenv('HUSKY_LASER_TOPIC', 'scan'))" />
+    <!-- AMCL -->
+    <include file="$(find ewc_navigation)/launch/amcl.launch"/>
 
-  <!--- Run AMCL -->
-  <include file="$(find husky_navigation)/launch/amcl.launch">
-    <arg name="scan_topic" value="$(arg scan_topic)" />
-  </include>
 
- <arg name="base_global_planner" default="navfn/NavfnROS"/>
-  <arg name="base_local_planner" default="dwa_local_planner/DWAPlannerROS"/>
-  <!--<arg name="base_local_planner" default="base_local_planner/TrajectoryPlannerROS"/>-->
-  
-  
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <!-- move_base -->
+    <include file="$(find ewc_navigation)/launch/move_base.launch"/>
+	
 
-    <param name="base_global_planner" value="$(arg base_global_planner)"/>
-    <param name="base_local_planner" value="$(arg base_local_planner)"/>  
-    
-    <rosparam file="$(find ewc_navigation)/params/base_local_planner_params.yaml" command="load"/>
-
-    <rosparam file="$(find ewc_navigation)/params/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find ewc_navigation)/params/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    
-    <rosparam file="$(find ewc_navigation)/params/local_costmap_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find ewc_navigation)/params/global_costmap_params.yaml" command="load" ns="global_costmap" /> 
-    <!--<param name="base_local_planner_params" value="teb_local_planner/TebLocalPlannerROS" />
-    <param name="controller_frequency" value="10.0" />-->
-  </node> 
-
-  <!--<group if="$(arg open_rviz)"> 
-    <node pkg="rviz" type="rviz" name="rviz" required="true"
-          args="-d $(find ewc_navigation)/rviz/turtlebot3_navigation.rviz"/>
-  </group>-->
+    <!-- rviz -->
+    <group if="$(arg open_rviz)"> 
+       <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find ewc_navigation)/rviz/ewc_navigation.rviz"/>
+    </group>
 
 </launch> 
