@@ -33,8 +33,10 @@ using std::string;
     string global_frame;
 
     bool initialized_;
+    
+    int step_size;
+    int max_iterations;
 
-    double step_size_;
     double min_dist_from_robot_;
     double resolution;
     double width;
@@ -42,6 +44,8 @@ using std::string;
 
     pnt::Point start;
     pnt::Point end;
+
+    vector<pnt::Point> global_plan;
 
 
 

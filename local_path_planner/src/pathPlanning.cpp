@@ -303,7 +303,7 @@ PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int di
     pnt::Point pRand;
     quad::Node nearVertex;
 
-    int density=(x2-x1) *(y2-y1)*2;
+    int density=1;
     for(int i=0; i<density; i++)
     {
         pRand = pnt::generateRandomPoint(x1,y1,x2,y2);

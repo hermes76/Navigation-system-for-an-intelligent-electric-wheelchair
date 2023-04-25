@@ -146,7 +146,7 @@ bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point 
         y+=Yinc;
         cost=grid.getCost(x,y);
         cost_value=cost;
-        if(cost_value>150 || cost_value==-1)
+        if(cost_value>=150)
                 return false;
     }
 
@@ -222,8 +222,10 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
     tree.insert(start,0);
 
 
-    while(!pathFind && vertex.size()<limit_nodes)
+    int i=0;
+    while(!pathFind && i<limit_nodes)
     {   
+        i++;
         pRand=pnt:: generateRandomPoint(x1,y1,x2,y2);
         nearVertex= tree.closestPoint(pRand);
         pNew= steer(nearVertex.point,pRand,distance);
@@ -238,7 +240,7 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
         
         if(pnt::euclidianDistanceSqrt(pNew,end)<=distance && obstacleFree(grid,pNew,end))
             pathFind=true;
-
+        cout<<i<<endl;
     }
     if(pathFind==false)
         return false;
@@ -303,7 +305,7 @@ PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int di
     pnt::Point pRand;
     quad::Node nearVertex;
 
-    int density=(x2-x1) *(y2-y1)*2;
+    int density=(x2-x1) *(y2-y1)*3/distance;
     for(int i=0; i<density; i++)
     {
         pRand = pnt::generateRandomPoint(x1,y1,x2,y2);

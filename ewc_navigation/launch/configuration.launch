@@ -10,7 +10,7 @@
     <node pkg="ewc_slam" name="ewc_kinect_frame" type="ewc_kinect_frame"/> -->
   
     <!-- Run the map server --> 
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find ewc_navigation)/maps/robo.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find ewc_navigation)/maps/robov2.yaml"/>
 
     <!-- AMCL -->
     <include file="$(find ewc_navigation)/launch/amcl.launch"/>

@@ -31,8 +31,8 @@ namespace global {
 
        ros::NodeHandle private_nh("~/" + name);
 
-       private_nh.param("step_size", step_size_, costmap_->getResolution());
-       private_nh.param("min_dist_from_robot", min_dist_from_robot_, 0.10);
+       private_nh.param("step_size", this->step_size, 5);
+       private_nh.param("max_iterations", this->max_iterations, 5000);
 
        this->world_model_ = new base_local_planner::CostmapModel(*costmap_); 
 
@@ -54,8 +54,20 @@ namespace global {
   pnt::Point new_start(start.pose.position.x,start.pose.position.y);
   pnt::Point new_goal(goal.pose.position.x, goal.pose.position.y);
 
-  if(this->end==new_goal)
-    return true;
+
+  if(this->end==new_goal && !global_plan.empty())
+  {
+    bool ok=true;
+    for(int i=0; i< global_plan.size()-1; i++)
+    {
+        if(!path::obstacleFree(*this->costmap_,global_plan[i],global_plan[i+1]))
+          ok=false;
+    }
+    if(ok)
+      return true;
+  }
+ 
+
   
   this->end=new_goal;
 
@@ -74,19 +86,21 @@ namespace global {
   new_goal.setX(x);
   new_goal.setY(y);
 
-  if(!path::RRT(routes,*this->costmap_,new_start,new_goal,5,5000,0,0,costmap_->getSizeInCellsX(),costmap_->getSizeInCellsY()))
+  if(!path::RRT(routes,*this->costmap_,new_start,new_goal,this->step_size,this->max_iterations,0,0,costmap_->getSizeInCellsX(),costmap_->getSizeInCellsY()))
     return false;
 
   path=routes.getPathPlanning();
 
-  routes=path::informedRRTStar(*this->costmap_,path,5,0,0,costmap_->getSizeInCellsX(),costmap_->getSizeInCellsY());
+  routes=path::informedRRTStar(*this->costmap_,path,this->step_size,0,0,costmap_->getSizeInCellsX(),costmap_->getSizeInCellsY());
 
   path=routes.getPathPlanning();
 
   geometry_msgs::PoseStamped pose;
 
+
   ros::Time plan_time = ros::Time::now();
-  for(pnt::Point i: path.getRoute())
+  global_plan=path.getRoute();
+  for(pnt::Point i: global_plan)
   {
     mapToWorld(i.getX(), i.getY(),x,y);
     pose.header.stamp = plan_time;

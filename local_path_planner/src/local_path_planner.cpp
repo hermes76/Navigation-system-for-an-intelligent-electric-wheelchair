@@ -20,8 +20,7 @@ LocalPathPlanner::~LocalPathPlanner() {}
 void LocalPathPlanner::initialize(std::string name, tf2_ros::Buffer* tf,
                               costmap_2d::Costmap2DROS* costmap_ros)
 {
-    ros::NodeHandle nh;
-	ros::NodeHandle private_nh("~/" + name);
+   
 
     if(!initialized_)
     {
@@ -29,16 +28,24 @@ void LocalPathPlanner::initialize(std::string name, tf2_ros::Buffer* tf,
         costmap_ros_ = costmap_ros;
         initialized_ = true;
     }
-    ROS_INFO("RRT* Local Planner initialized successfully.");
-    m_odom_sub = nh.subscribe<nav_msgs::Odometry>("/odom", 1, boost::bind(&LocalPathPlanner::odomCallback, this, _1));
-    
+    ros::NodeHandle nh;
+	ros::NodeHandle private_nh("~/" + name);
+    ros::NodeHandle amcl_topic;
+
+    private_nh.param("max_angular_velocity", this->max_angular_velocity,(float)1.0);
+    private_nh.param("max_linear_velocity", this->max_linear_velocity,(float)0.11);
+    private_nh.param("threshold_angle",this->threshold_angle, 90);
+
     this->angular_velocity=0;
     this->linear_velocity=0;
     this->index_subgoal=1;
-    this->max_linear_velocity=0.22;
-    this->max_angular_velocity=2.00;
-    this->threshold_angle=90;
     this->PI=3.14159265359;
+
+
+    ROS_INFO("RRT* Local Planner initialized successfully.");
+    this->m_odom_sub = nh.subscribe<nav_msgs::Odometry>("/odom", 1, boost::bind(&LocalPathPlanner::odomCallback, this, _1));
+    this->amcl_sub = amcl_topic.subscribe("amcl_pose" , 100, &LocalPathPlanner::amclCallBack, this); 
+   
 }
 
 bool LocalPathPlanner::setPlan(
@@ -68,35 +75,13 @@ bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
         return false;
     }
 
-    double quatx;
-    double quaty;
-    double quatz;
-    double quatw;
-    double siny_cosp;
-    double cosy_cosp;
-    double yaw;
-    double yaw360;
     double angle;
-    int diference;
+    double yaw;
 
-    tf2::Transform local_pose;
-    tf2::Quaternion quad;
+    int diference;
 
     pnt::Point subgoal;
     pnt::Point current_position;
-
-    quatx= this->m_odometry->pose.pose.orientation.x;
-    quaty= this->m_odometry->pose.pose.orientation.y;
-    quatz= this->m_odometry->pose.pose.orientation.z;
-    quatw= this->m_odometry->pose.pose.orientation.w;
-   
-    siny_cosp = 2 * (quatw * quatz + quatx * quaty);
-    cosy_cosp = 1 - 2 * (quaty * quaty + quatz * quatz);
-    yaw = std::atan2(siny_cosp, cosy_cosp) * 180/this->PI;
-    yaw360=yaw;
-
-    if(yaw360<0)
-        yaw360+=360;
 
    // ROS_INFO("Yaw: [%f]",yaw);
 
@@ -106,18 +91,19 @@ bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
     current_position = this->getCurrentPosition();
 
     angle= computeAngleBetweenPoints(current_position,subgoal);
+    yaw=EstimatedYaw();
 
-    diference=(int)(angle-yaw360+360) %360;
+    diference=(int)(angle-yaw+360) %360;
     
     if(diference<=180)
         angular_velocity=min(diference*this->max_angular_velocity/threshold_angle,this->max_angular_velocity);    
     if(diference>180)
     {
-        diference=(int)(yaw360-angle+360)%360;
+        diference=(int)(yaw-angle+360)%360;
         angular_velocity=max(diference*-this->max_angular_velocity/threshold_angle,-this->max_angular_velocity);
     }
     linear_velocity=max((float)0,this->max_linear_velocity-(diference*this->max_linear_velocity/threshold_angle));
-    cout<<"angle "<<angle<<" yaw360 "<<yaw360<<" angular "<<angular_velocity<<" lineal "<<linear_velocity<<" diference " <<diference<<endl;
+    cout<<"angle "<<angle<<" yaw360 "<<yaw<<" current x "<<current_position.getX()<<" current y "<<current_position.getY()<<yaw<<" mx "<<estimated_x<<" my "<<estimated_y<<endl;
     if(pnt::euclidianDistanceSqrt(current_position,subgoal)<0.1)
     {
         this->index_subgoal++;
@@ -152,13 +138,65 @@ bool LocalPathPlanner::isGoalReached()
     goal=pnt::Point(global_plan[len].pose.position.x, global_plan[len].pose.position.y);
 
     if(pnt::euclidianDistanceSqrt(getCurrentPosition(),goal)<0.1)
+    {
+        cout<<"YEY"<<endl;
         return true;
+    }
     return false;
+}
+void LocalPathPlanner::amclCallBack(const geometry_msgs::PoseWithCovarianceStamped::Ptr& msg)
+{
+    this->estimated_x=msg->pose.pose.position.x;
+    this->estimated_y=msg->pose.pose.position.y;
+
+    double quatx = msg->pose.pose.orientation.x;
+    double quaty = msg->pose.pose.orientation.y;
+    double quatz = msg->pose.pose.orientation.z;
+    double quatw = msg->pose.pose.orientation.w;
+
+
+    double siny_cosp;
+    double cosy_cosp;
+    double yaw;
+    double yaw360;
+
+
+    siny_cosp = 2 * (quatw * quatz + quatx * quaty);
+    cosy_cosp = 1 - 2 * (quaty * quaty + quatz * quatz);
+    yaw = std::atan2(siny_cosp, cosy_cosp) * 180/this->PI;
+    yaw360=yaw;
+
+    if(yaw360<0)
+        yaw360+=360;
+    
+    this->estimated_yaw=yaw360;
 }
 void LocalPathPlanner::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
-    boost::mutex::scoped_lock lock(m_odometry_mutex);
-	m_odometry = msg;
+    this->odom_x=msg->pose.pose.position.x;
+    this->odom_y=msg->pose.pose.position.y;
+
+    double quatx = msg->pose.pose.orientation.x;
+    double quaty = msg->pose.pose.orientation.y;
+    double quatz = msg->pose.pose.orientation.z;
+    double quatw = msg->pose.pose.orientation.w;
+
+
+    double siny_cosp;
+    double cosy_cosp;
+    double yaw;
+    double yaw360;
+
+
+    siny_cosp = 2 * (quatw * quatz + quatx * quaty);
+    cosy_cosp = 1 - 2 * (quaty * quaty + quatz * quatz);
+    yaw = std::atan2(siny_cosp, cosy_cosp) * 180/this->PI;
+    yaw360=yaw;
+
+    if(yaw360<0)
+        yaw360+=360;
+    
+    this->odom_yaw=yaw360;
 }
 double LocalPathPlanner::computeAngleBetweenPoints(pnt::Point first, pnt::Point second)
 {
@@ -180,7 +218,31 @@ pnt::Point LocalPathPlanner::getSubgoal()
 
 pnt::Point LocalPathPlanner::getCurrentPosition()
 {
-    return pnt::Point(m_odometry->pose.pose.position.x,m_odometry->pose.pose.position.y);
-}
+    if(this->last_estimated_x!= this->estimated_x && this->last_estimated_y != this->estimated_y 
+    && this->last_estimated_yaw != this->estimated_yaw)
+    {
+        this->last_estimated_x  =this->estimated_x;
+        this->last_estimated_y  =this->estimated_y;
+        this->last_estimated_yaw=this->estimated_yaw;
+        this->diference_odom_x   = this->odom_x;
+        this->diference_odom_y   = this->odom_y;
+        this->diference_odom_yaw = this->odom_yaw;
 
+    }
+    pnt::Point odom_point(this->odom_x, this->odom_y);
+    pnt::Point diference_odom(this->diference_odom_x, this->diference_odom_y);
+
+    pnt::Point current_position(this->last_estimated_x,this->last_estimated_y);
+    pnt::Point estimated_position=pnt::angledPoint(current_position,current_position+odom_point-diference_odom,-this->last_estimated_yaw);
+
+    return estimated_position;
+}
+double LocalPathPlanner::EstimatedYaw()
+{
+    double diference_angle=this->odom_yaw-diference_odom_yaw;
+    double yaw=this->last_estimated_yaw+diference_angle;
+    double decimal=yaw-(int)yaw;
+    yaw=(int)(yaw+360)%360+decimal;
+    return yaw;
+}
 }
