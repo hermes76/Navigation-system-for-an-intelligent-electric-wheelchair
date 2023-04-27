@@ -3,7 +3,10 @@ controller_frequency: 10.0
 planner_patience: 5.0
 controller_patience: 15.0
 conservative_reset_dist: 3.0
+clearing_rotation_allowed: false
 planner_frequency: 5.0
 oscillation_timeout: 10.0
-oscillation_distance: 0.2
-recovery_behavior_enabled: false
+oscillation_distance: 0.01
+recovery_behavior_enabled: true
+base_global_planner: global_path_planner/GlobalPathPlanner 
+base_local_planner: local_path_planner/LocalPathPlanner

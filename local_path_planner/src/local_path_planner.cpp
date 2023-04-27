@@ -103,7 +103,7 @@ bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
         angular_velocity=max(diference*-this->max_angular_velocity/threshold_angle,-this->max_angular_velocity);
     }
     linear_velocity=max((float)0,this->max_linear_velocity-(diference*this->max_linear_velocity/threshold_angle));
-    cout<<"angle "<<angle<<" yaw360 "<<yaw<<" current x "<<current_position.getX()<<" current y "<<current_position.getY()<<yaw<<" mx "<<estimated_x<<" my "<<estimated_y<<endl;
+    cout<<"angle "<<angle<<" yaw360 "<<yaw<<endl;//" current x "<<current_position.getX()<<" current y "<<current_position.getY()<<yaw<<" mx "<<estimated_x<<" my "<<estimated_y<<endl;
     if(pnt::euclidianDistanceSqrt(current_position,subgoal)<0.1)
     {
         this->index_subgoal++;

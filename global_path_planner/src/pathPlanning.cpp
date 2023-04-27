@@ -200,6 +200,7 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
 
     cost_=grid.getCost(start.getX(),start.getY());
     cost_value=cost_;
+    cout<<"COSTO"<< cost_value<<endl;
 
     if(cost_value>150)
     {
