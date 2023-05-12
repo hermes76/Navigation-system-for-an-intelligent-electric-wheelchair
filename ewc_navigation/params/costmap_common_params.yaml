@@ -1,7 +1,8 @@
-obstacle_range: 3.0
-raytrace_range: 3.5
+obstacle_range: 4.5
+raytrace_range: 4.5
 
 footprint: [[-0.15, -0.15], [-0.15, 0.15], [0.15, 0.15], [0.15, -0.15]]
+#footprint: [[-0.105, -0.105], [-0.105, 0.105], [0.041, 0.105], [0.041, -0.105]]
 #robot_radius: 0.105
 
 plugins:
@@ -12,13 +13,16 @@ plugins:
 
 static_layer:
   map_topic: /map
-# track_unknown_space: false;
+#track_unknown_space: false
+#unknown_cost_value: 0
 # lethal_cost_threshold:: 100
 
 obstacles_layer:
   observation_sources: scan
   scan: {sensor_frame: camera_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+#scan: {sensor_frame: base_scan, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+
 
 inflater_layer:
-  inflation_radius: 1.0
-  cost_scaling_factor: 2.0
+  inflation_radius: 1
+  cost_scaling_factor: 3

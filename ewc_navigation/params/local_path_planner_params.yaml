@@ -1,4 +1,8 @@
 LocalPathPlanner:
-  max_angular_velocity: 1.5
-  max_linear_velocity: 0.22
-  threshold_angle: 90
+  max_angular_velocity: 1.0
+  max_linear_velocity: 0.15
+  threshold_angle_angular: 80 
+  threshold_angle_linear: 80
+  deceleration_linear: 0.03
+  decelaration_angular: 0.03
+

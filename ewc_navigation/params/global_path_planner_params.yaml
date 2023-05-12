@@ -1,4 +1,7 @@
 GlobalPathPlanner:
   step_size: 10
-  max_iterations: 5000
+  max_iterations: 10000
+  show_rrt_tree: true
+  show_optimization_area: true
+  show_optimized_tree: true
 

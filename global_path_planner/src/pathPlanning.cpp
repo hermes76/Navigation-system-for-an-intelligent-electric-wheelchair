@@ -120,7 +120,7 @@ PathPlanning PathTree:: getPathPlanning()
     PathPlanning route(pathRoute,pathCost,this->area);
     return route;
 }
-bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point pointEnd)
+bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point pointEnd,int letalCost)
 {
     
 
@@ -136,9 +136,11 @@ bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point 
     double Yinc = dy/(double)steps;
     double x=pointBegin.getX();
     double y=pointBegin.getY();
-    unsigned char cost;
-    int cost_value;
     double ocuped_fresh=0.65;
+
+    unsigned char cost;
+
+    int cost_value;
 
     for(int i=0; i<steps; i++)
     {
@@ -146,7 +148,7 @@ bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point 
         y+=Yinc;
         cost=grid.getCost(x,y);
         cost_value=cost;
-        if(cost_value>=150)
+        if(cost_value>=letalCost)
                 return false;
     }
 
@@ -200,9 +202,7 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
 
     cost_=grid.getCost(start.getX(),start.getY());
     cost_value=cost_;
-    cout<<"COSTO"<< cost_value<<endl;
-
-    if(cost_value>150)
+    if(cost_value>200)
     {
         ROS_ERROR("ERROR INVALID INITIAL POSITION");
         return false;
@@ -210,8 +210,7 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
 
     cost_=grid.getCost(end.getX(),end.getY());
     cost_value=cost_;
-
-    if(cost_value>150)
+    if(cost_value>200)
     {
          ROS_ERROR("ERROR INVALID FINAL POSITION");
         return false;
@@ -229,9 +228,11 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
         i++;
         pRand=pnt:: generateRandomPoint(x1,y1,x2,y2);
         nearVertex= tree.closestPoint(pRand);
+        if(pRand==nearVertex.point)
+            continue;
         pNew= steer(nearVertex.point,pRand,distance);
 
-        if(!obstacleFree(grid,nearVertex.point,pNew))
+        if(!obstacleFree(grid,nearVertex.point,pNew,150))
             continue;
 
         cost.push_back(cost[nearVertex.id]+ pnt::euclidianDistanceSqrt(nearVertex.point,pNew));
@@ -239,9 +240,8 @@ bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::
         vertex.push_back(pNew);
         tree.insert(pNew,vertex.size()-1);
         
-        if(pnt::euclidianDistanceSqrt(pNew,end)<=distance && obstacleFree(grid,pNew,end))
+        if(pnt::euclidianDistanceSqrt(pNew,end)<=distance && obstacleFree(grid,pNew,end,150))
             pathFind=true;
-        cout<<i<<endl;
     }
     if(pathFind==false)
         return false;
@@ -302,12 +302,22 @@ PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int di
 
     vector<quad::Node> circleRange;
     double bestCost;
+    double areaPolygon;
+    int pointsInside;
+
 
     pnt::Point pRand;
     quad::Node nearVertex;
+    vector<pnt::Point> scalePoints;
 
-    int density=(x2-x1) *(y2-y1)*3/distance;
-    for(int i=0; i<density; i++)
+    for(int i=0; i<corners.size(); i++)
+        scalePoints.push_back(pnt::Point(corners[i].getX()/(distance/2), corners[i].getY()/(distance/2)));
+    
+    areaPolygon=polygonArea(scalePoints);
+    pointsInside=latticePoints(areaPolygon, scalePoints, distance/2);
+
+    //int density=(x2-x1) *(y2-y1)*3/distance;
+    for(int i=0; i<pointsInside*2; i++)
     {
         pRand = pnt::generateRandomPoint(x1,y1,x2,y2);
         pRand = pnt::angledPoint(start,pRand, angle);
@@ -317,7 +327,7 @@ PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int di
         vector<quad::Node> nearby;
 
         for(quad::Node i : circleRange)
-            if(obstacleFree(grid,i.point,pRand))
+            if(obstacleFree(grid,i.point,pRand,150))
                 nearby.push_back(i);
 
         if(nearby.empty())
@@ -359,6 +369,43 @@ PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int di
     PathTree optimizedTree(vertex,cost,parent,corners);
     optimizedTree.setGoal(goal);
     return optimizedTree;
+}
+int latticePoints(double area, vector<pnt::Point> points,double distance)
+{
+    double x1,x2,y1,y2;
+    int boundaryPoints;
+    int insidePoints;
+    int n= points.size();
+
+    x1= points[n-1].getX();
+    x2=points[0].getX();
+    y1= points[n-1].getY();
+    y2= points[0].getY();
+    boundaryPoints=__gcd((int)abs(x2-x1), (int)abs(y2-y1))+1;
+
+    for(int i=1; i<n; i++)
+    {
+        x1= points[i-1].getX();
+        x2=points[i].getX();
+        y1= points[i-1].getY();
+        y2= points[i].getY();
+        boundaryPoints+=__gcd((int)abs(x2-x1), (int)abs(y2-y1))+1;
+    }
+
+    boundaryPoints-=n;
+    insidePoints=area+2-boundaryPoints;
+    insidePoints/=2;
+    return insidePoints;
+}
+
+double polygonArea(vector<pnt::Point> points)
+{
+    int size=points.size();
+    double area=points[size-1]*points[0];
+
+    for(int i=1; i<size; i++)
+        area+=points[i-1]*points[i];
+    area= abs(area);
 }
 
 }

@@ -32,9 +32,14 @@ void LocalPathPlanner::initialize(std::string name, tf2_ros::Buffer* tf,
 	ros::NodeHandle private_nh("~/" + name);
     ros::NodeHandle amcl_topic;
 
-    private_nh.param("max_angular_velocity", this->max_angular_velocity,(float)1.0);
-    private_nh.param("max_linear_velocity", this->max_linear_velocity,(float)0.11);
-    private_nh.param("threshold_angle",this->threshold_angle, 90);
+
+    private_nh.param("max_angular_velocity",   this->max_angular_velocity,(float)1.0);
+    private_nh.param("max_linear_velocity",    this->max_linear_velocity,(float)0.11);
+    private_nh.param("threshold_angle_angular",this->threshold_angle_angular, 90);
+    private_nh.param("threshold_angle_linear", this->threshold_angle_linear, 90);
+    private_nh.param("deceleration_linear",    this->deceleration_linear, (float)0.03);
+    private_nh.param("deceleration_angular",   this->deceleration_angular, (float)0.03);
+
 
     this->angular_velocity=0;
     this->linear_velocity=0;
@@ -42,9 +47,10 @@ void LocalPathPlanner::initialize(std::string name, tf2_ros::Buffer* tf,
     this->PI=3.14159265359;
 
 
-    ROS_INFO("RRT* Local Planner initialized successfully.");
     this->m_odom_sub = nh.subscribe<nav_msgs::Odometry>("/odom", 1, boost::bind(&LocalPathPlanner::odomCallback, this, _1));
-    this->amcl_sub = amcl_topic.subscribe("amcl_pose" , 100, &LocalPathPlanner::amclCallBack, this); 
+    this->amcl_sub   = amcl_topic.subscribe("amcl_pose" , 100, &LocalPathPlanner::amclCallback, this);
+    ROS_INFO("RRT* Local Planner initialized successfully.");
+
    
 }
 
@@ -56,11 +62,8 @@ bool LocalPathPlanner::setPlan(
         ROS_ERROR("This planner has not been initialized");
         return false;
     }
-    if(this->global_plan!=orig_global_plan)
-    {
-        this->index_subgoal=1;
-        this->global_plan=orig_global_plan;
-    }
+    this->index_subgoal=1;
+    this->global_plan=orig_global_plan;
 
     return true;
 }
@@ -68,7 +71,6 @@ bool LocalPathPlanner::setPlan(
 bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
 {
     
-
     if(!initialized_)
     {
         ROS_ERROR("This planner has not been initialized");
@@ -78,17 +80,40 @@ bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
     double angle;
     double yaw;
 
+    int len;
     int diference;
 
     pnt::Point subgoal;
     pnt::Point current_position;
-
-   // ROS_INFO("Yaw: [%f]",yaw);
+    pnt::Point goal;
+    pnt::Point start;
 
     geometry_msgs::Twist cmd;
 
-    subgoal=this->getSubgoal();
+
+    len=global_plan.size()-1;
+
+    goal=pnt::Point(global_plan[len].pose.position.x, global_plan[len].pose.position.y);
+    start=pnt::Point(global_plan[0].pose.position.x, global_plan[0].pose.position.y);
+
+    if(pnt::euclidianDistanceSqrt(start,goal)<0.01)
+    {
+        this->linear_velocity=max((float)0.0,this->linear_velocity   -deceleration_linear);
+        this->angular_velocity=max((float)0.0,this->angular_velocity -deceleration_angular);
+
+        cmd.linear.x=this->linear_velocity;
+        cmd.linear.y = 0;
+        cmd.linear.z = 0;
+        cmd.angular.x = this->angular_velocity;
+        cmd.angular.y = 0;
+        cmd.angular.z = 0;
+
+        cmd_vel=cmd;
+        return true;
+    }
+
     current_position = this->getCurrentPosition();
+    subgoal=this->getSubgoal();
 
     angle= computeAngleBetweenPoints(current_position,subgoal);
     yaw=EstimatedYaw();
@@ -96,18 +121,19 @@ bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
     diference=(int)(angle-yaw+360) %360;
     
     if(diference<=180)
-        angular_velocity=min(diference*this->max_angular_velocity/threshold_angle,this->max_angular_velocity);    
+        angular_velocity=min(diference*this->max_angular_velocity/this->threshold_angle_angular,this->max_angular_velocity);    
     if(diference>180)
     {
         diference=(int)(yaw-angle+360)%360;
-        angular_velocity=max(diference*-this->max_angular_velocity/threshold_angle,-this->max_angular_velocity);
+        angular_velocity=max(diference*-this->max_angular_velocity/this->threshold_angle_angular,-this->max_angular_velocity);
     }
-    linear_velocity=max((float)0,this->max_linear_velocity-(diference*this->max_linear_velocity/threshold_angle));
-    cout<<"angle "<<angle<<" yaw360 "<<yaw<<endl;//" current x "<<current_position.getX()<<" current y "<<current_position.getY()<<yaw<<" mx "<<estimated_x<<" my "<<estimated_y<<endl;
+    linear_velocity=max((float)0,this->max_linear_velocity-(diference*this->max_linear_velocity/this->threshold_angle_linear));
+    //cout<<"angle "<<angle<<" yaw360 "<<yaw<<endl;//" current x "<<current_position.getX()<<" current y "<<current_position.getY()<<yaw<<" mx "<<estimated_x<<" my "<<estimated_y<<endl;
     if(pnt::euclidianDistanceSqrt(current_position,subgoal)<0.1)
     {
-        this->index_subgoal++;
-        cout<<"current point"<<this->index_subgoal<<endl;
+        if(this->global_plan.size()>this->index_subgoal)
+            this->index_subgoal++;
+        //cout<<"current point"<<this->index_subgoal<<endl;
     }
         
 
@@ -119,7 +145,7 @@ bool LocalPathPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel)
 	cmd.angular.z = angular_velocity;
 
     cmd_vel=cmd;
-
+    
     return true;
 }
 
@@ -132,19 +158,21 @@ bool LocalPathPlanner::isGoalReached()
     }
     int len;
     pnt::Point goal;
+    pnt::Point start;
 
     len=global_plan.size()-1;
 
-    goal=pnt::Point(global_plan[len].pose.position.x, global_plan[len].pose.position.y);
-
-    if(pnt::euclidianDistanceSqrt(getCurrentPosition(),goal)<0.1)
+    goal= pnt::Point(global_plan[len].pose.position.x, global_plan[len].pose.position.y);
+    start=pnt::Point(global_plan[0].pose.position.x, global_plan[0].pose.position.y);
+    if(pnt::euclidianDistanceSqrt(getCurrentPosition(),goal)<0.1
+     && pnt::euclidianDistanceSqrt(start,goal)>0.01)
     {
         cout<<"YEY"<<endl;
         return true;
     }
     return false;
 }
-void LocalPathPlanner::amclCallBack(const geometry_msgs::PoseWithCovarianceStamped::Ptr& msg)
+void LocalPathPlanner::amclCallback(const geometry_msgs::PoseWithCovarianceStamped::Ptr& msg)
 {
     this->estimated_x=msg->pose.pose.position.x;
     this->estimated_y=msg->pose.pose.position.y;
@@ -170,6 +198,7 @@ void LocalPathPlanner::amclCallBack(const geometry_msgs::PoseWithCovarianceStamp
         yaw360+=360;
     
     this->estimated_yaw=yaw360;
+    //this->currentCovariance = msg->covariance;
 }
 void LocalPathPlanner::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
@@ -198,6 +227,8 @@ void LocalPathPlanner::odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
     
     this->odom_yaw=yaw360;
 }
+
+
 double LocalPathPlanner::computeAngleBetweenPoints(pnt::Point first, pnt::Point second)
 {
     double angle;
@@ -220,7 +251,9 @@ pnt::Point LocalPathPlanner::getCurrentPosition()
 {
     if(this->last_estimated_x!= this->estimated_x && this->last_estimated_y != this->estimated_y 
     && this->last_estimated_yaw != this->estimated_yaw)
+    //if(this->bestCovariance> this->currentCovariance)
     {
+       // this->bestCovanriance=this->currentCovariance;
         this->last_estimated_x  =this->estimated_x;
         this->last_estimated_y  =this->estimated_y;
         this->last_estimated_yaw=this->estimated_yaw;

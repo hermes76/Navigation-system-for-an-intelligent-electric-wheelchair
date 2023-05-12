@@ -17,8 +17,8 @@ namespace pnt
             void setX(double x);
             void setY(double y);
             void printPoint();
-            bool closest(Point a, Point b);
-            bool closest(Point a, Point b,double &distance);
+            //bool closest(Point a, Point b);
+            //bool closest(Point a, Point b,double &distance);
 
 
     };
@@ -40,10 +40,10 @@ namespace pnt
     double euclidianDistanceSqrt(Point a,Point b);
     double slope(Point a,Point b);
     Point generateRandomPoint(int x1,int y1, int x2, int y2);
-    Point angledPoint(pnt::Point origin,pnt::Point p,double angle);
+    Point angledPoint(Point origin,Point p,double angle);
     bool comparePointInLimits(Point compare,int x1,int y1, int x2, int y2);
-    bool closest(Point origin,Point a, Point b);
-    bool closest(Point origin,Point a, Point b, double &distance);
+    //bool closest(Point origin,Point a, Point b);
+    //bool closest(Point origin,Point a, Point b, double &distance);
    
 
 

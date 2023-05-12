@@ -6,7 +6,7 @@ conservative_reset_dist: 3.0
 clearing_rotation_allowed: false
 planner_frequency: 5.0
 oscillation_timeout: 10.0
-oscillation_distance: 0.01
-recovery_behavior_enabled: true
+oscillation_distance: 0.0
+recovery_behavior_enabled: false
 base_global_planner: global_path_planner/GlobalPathPlanner 
 base_local_planner: local_path_planner/LocalPathPlanner

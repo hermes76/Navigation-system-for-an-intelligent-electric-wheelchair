@@ -33,7 +33,7 @@ public:
 
     bool computeVelocityCommands(geometry_msgs::Twist& cmd_vel);
 
-    void amclCallBack(const geometry_msgs::PoseWithCovarianceStamped::Ptr& msg);
+    void amclCallback(const geometry_msgs::PoseWithCovarianceStamped::Ptr& msg);
     void odomCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
     double computeAngleBetweenPoints(pnt::Point first, pnt::Point second);
@@ -50,7 +50,6 @@ public:
         
         double PI;
         bool initialized_;
-        bool initialized_origin_position;
         double estimated_x;
         double estimated_y;
         double estimated_yaw;
@@ -63,17 +62,22 @@ public:
         double diference_odom_x;
         double diference_odom_y;
         double diference_odom_yaw;
+        
+
+
 
         int index_subgoal;
         int goal_reached;
-        int threshold_angle;
+        int threshold_angle_angular;
+        int threshold_angle_linear;
               
         float angular_velocity;
         float linear_velocity;
         float max_linear_velocity;
         float max_angular_velocity;
+        float deceleration_linear;
+        float deceleration_angular;
 
-        pnt::Point origin;
 
         vector<geometry_msgs::PoseStamped> global_plan;
 
@@ -86,7 +90,6 @@ public:
 
         ros::Subscriber amcl_sub;
         ros::Subscriber m_odom_sub;
-        //ros::Publishers m_odom_pub;
 
         
 };

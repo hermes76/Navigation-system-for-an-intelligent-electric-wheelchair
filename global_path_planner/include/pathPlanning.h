@@ -6,6 +6,7 @@
 #include "point.h"
 #include "quadTree.h"
 using namespace std;
+
 namespace path{
     class PathPlanning
     {
@@ -44,7 +45,7 @@ namespace path{
             PathTree(vector<pnt::Point> nodes, vector<double> cost, 
             vector<int> parent, vector<pnt::Point> area);
 
-           vector<double> getCost();
+            vector<double> getCost();
             vector<pnt::Point> getNodes();
             vector<int> getParent();
             vector<pnt::Point> getArea();
@@ -60,10 +61,11 @@ namespace path{
             PathPlanning getPathPlanning();
 
     };
-    bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point pointEnd);
+    bool obstacleFree(costmap_2d::Costmap2D &grid,pnt::Point pointBegin, pnt::Point pointEnd, int letalCost);
     pnt::Point steer(pnt::Point near,pnt::Point pRand, int distance);
     bool RRT(PathTree &pathTree, costmap_2d::Costmap2D &grid, pnt::Point start,pnt::Point end,int distance,int limit_nodes, int x1,int y1, int x2, int y2);
     PathTree informedRRTStar(costmap_2d::Costmap2D &grid,PathPlanning &route, int distance,int x1, int y1, int x2, int y2);
-
+    int latticePoints(double area,vector<pnt::Point> points, double distance);
+    double polygonArea(vector<pnt::Point> points);
 }
 #endif

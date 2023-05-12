@@ -132,7 +132,7 @@ bool comparePointInLimits(Point compare,int x1,int y1, int x2, int y2)
         return true;
     return false;   
 }
-bool Point::closest(Point a, Point b)
+/*bool Point::closest(Point a, Point b)
 {
     double dx1,dx2,dy1,dy2;
     dx1=a.getX()-this->x;
@@ -169,6 +169,6 @@ bool closest(Point origin,Point a, Point b)
 bool closest(Point origin,Point a, Point b,double &distance)
 {
     return origin.closest(a,b,distance);
-}
+}*/
 
 }

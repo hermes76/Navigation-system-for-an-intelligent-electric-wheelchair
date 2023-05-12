@@ -32,10 +32,8 @@ include_directories(
 
 add_library(${PROJECT_NAME}
   src/local_path_planner.cpp
-  src/pathPlanning.cpp
-  src/pgm.cpp
   src/point.cpp
-  src/quadTree.cpp
+
 )
 
 target_link_libraries(${PROJECT_NAME}
