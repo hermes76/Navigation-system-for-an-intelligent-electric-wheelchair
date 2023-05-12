@@ -45,7 +45,12 @@ $ roslaunch ewc_navigation configuration.launch
 ```
 Una vez que cargue el mapa en la herramienta de Rviz deberás de colocar los puntos delimitantes para la navegación con el botón 
 ![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/2748dd6b-3bb2-417c-84e3-ad89df848c00)
+
 Para colocar los 2 puntos siempre debes de empezar desde la esquina inferior derecha y poner el punto de la esquina superior izquierda.
+
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/0b9fb71c-0cc6-47a2-9a64-a66459b708ed)
+
+listo después solo introduce la posición estimada y la posición a donde deseas llega :shipit:
 ![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/684a8693-3fc8-48ab-b26d-891f8bc9000c)
 
 
