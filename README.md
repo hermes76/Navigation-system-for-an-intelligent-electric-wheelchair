@@ -5,7 +5,7 @@ El sistema de navegación implementado fue para una silla de ruedas, sin embargo
 usando principalmente como sistema operativo Ubuntu 17.04 y ROS-Melodic. Se utilizó el algoritmo RRT y informedRRT* para la planificación de rutas,
 más aparte se utilizó quadtrees para la optimización de consultas sobre puntos y para la parte de comprobación de obstáculos se usó un Analizador 
 Digital Diferencial.
-![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/c12e4100-1ba9-4bab-a87f-2ec16292134b)
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/98e67d86-5be4-4bf3-aa75-be00ceffeb59)
 
 # Requisitos
 - [Ubuntu 17.04]()
