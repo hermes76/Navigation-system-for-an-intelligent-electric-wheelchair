@@ -50,8 +50,8 @@ Una vez que cargue el mapa en la herramienta de Rviz deberás de colocar los pun
 
 
 Para colocar los 2 puntos siempre debes de empezar desde la esquina inferior derecha y poner el punto de la esquina superior izquierda.
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/bc624732-cfa5-4d95-868e-3fec833baebd)
 
-![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/53a09f12-41d7-426d-b6cc-6c5d332bc843)
 
 
 listo después solo introduce la posición estimada y la posición a donde deseas llega :shipit:
