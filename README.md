@@ -9,7 +9,7 @@ Digital Diferencial.
 
 
 # Requisitos
-- [Ubuntu 17.04]()
+- [Ubuntu 17.04]
 - [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
 - [Create robot](https://github.com/AutonomyLab/create_robot)
 
