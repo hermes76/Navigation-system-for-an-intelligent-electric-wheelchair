@@ -5,7 +5,8 @@ El sistema de navegación implementado fue para una silla de ruedas, sin embargo
 usando principalmente como sistema operativo Ubuntu 17.04 y ROS-Melodic. Se utilizó el algoritmo RRT y informedRRT* para la planificación de rutas,
 más aparte se utilizó quadtrees para la optimización de consultas sobre puntos y para la parte de comprobación de obstáculos se usó un Analizador 
 Digital Diferencial.
-![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/98e67d86-5be4-4bf3-aa75-be00ceffeb59)
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/72fbb988-3577-4982-a088-cd3ca28945b0)
+
 
 # Requisitos
 - [Ubuntu 17.04]()
@@ -44,15 +45,18 @@ $ source devel/setup.bash
 $ roslaunch ewc_navigation configuration.launch
 ```
 Una vez que cargue el mapa en la herramienta de Rviz deberás de colocar los puntos delimitantes para la navegación con el botón 
-![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/a2806072-5239-40a4-87f1-610b71e45ec1)
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/f9088f31-c3b3-44f6-96e3-dd8572ea36e3)
+
 
 
 Para colocar los 2 puntos siempre debes de empezar desde la esquina inferior derecha y poner el punto de la esquina superior izquierda.
 
-![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/0b9fb71c-0cc6-47a2-9a64-a66459b708ed)
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/53a09f12-41d7-426d-b6cc-6c5d332bc843)
+
 
 listo después solo introduce la posición estimada y la posición a donde deseas llega :shipit:
-![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/684a8693-3fc8-48ab-b26d-891f8bc9000c)
+![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/ea776b91-d236-402e-922a-65f4fc0c593e)
+
 
 
 
