@@ -54,7 +54,7 @@ Para colocar los 2 puntos siempre debes de empezar desde la esquina inferior der
 
 
 
-listo después solo introduce la posición estimada y la posición a donde deseas llega :shipit:
+listo después solo introduce la posición estimada y la posición a donde deseas llegar :shipit:
 ![imagen](https://github.com/hermes76/Navigation-system-for-an-intelligent-electric-wheelchair/assets/44623908/ea776b91-d236-402e-922a-65f4fc0c593e)
 
 
